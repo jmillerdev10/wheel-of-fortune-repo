@@ -17,7 +17,7 @@ maxrounds = 3
 vowelcost = 250
 
 # final prize, you fill this in
-finalprize = 
+finalprize = "$1.00"
 
 # final round, change if needed.
 finalRoundTextLoc = 'data/finalround.txt'
