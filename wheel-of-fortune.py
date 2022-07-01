@@ -52,11 +52,17 @@ readDictionaryFile()
 # def readWheelTxtFile():
 #     global wheellist
 #     # read the Wheel name from input using the Config wheelloc file location 
-    
-# def getPlayerInfo():
-#     global players
-#     # read in player names from command prompt input
 
+# Prompt user for player names, store those names in the players dict
+# in the nested dictionaries with the "name" key    
+def getPlayerInfo():
+    global players
+    players[0]["name"] = input("Enter player 1's name: ")
+    players[1]["name"] = input("Enter player 2's name: ")
+    players[2]["name"] = input("Enter player 3's name: ")
+    # print(players)
+
+getPlayerInfo()
 
 # def gameSetup():
 #     # Read in File dictionary
