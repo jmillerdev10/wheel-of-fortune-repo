@@ -1,3 +1,4 @@
+from pyrsistent import b
 from config import dictionaryloc
 from config import turntextloc
 from config import wheeltextloc
@@ -8,6 +9,7 @@ from config import finalprize
 from config import finalRoundTextLoc
 
 import random
+import csv
 
 players={0:{"roundtotal":0,"gametotal":0,"name":""},
          1:{"roundtotal":0,"gametotal":0,"name":""},
@@ -28,14 +30,12 @@ finalroundtext = ""
 # Reads dictionary.txt and stores all words in a list
 def readDictionaryFile():
     global dictionary
-    with open("dictionary.txt", "r") as file:
+    with open(dictionaryloc, "r") as file:
         dictionaryRaw = file.read()
         dictionary = list(map(str, dictionaryRaw.split()))
+        # getWord() # This needs to be called from within wofRoundSetup(). Delete this line once that is in place
         # print(dictionary)
-    
-
-readDictionaryFile()      
-    
+        
 # def readTurnTxtFile():
 #     global turntext   
 #     #read in turn intial turn status "message" from file
@@ -49,9 +49,15 @@ readDictionaryFile()
 #     global roundstatus
 #     # read the round status  the Config roundstatusloc file location 
 
-# def readWheelTxtFile():
-#     global wheellist
-#     # read the Wheel name from input using the Config wheelloc file location 
+# Open the wheeldata file and read it into the application
+def readWheelTxtFile():
+    global wheellist
+    with open(wheeltextloc, "r") as file:
+        wheelRaw = file.read()
+        wheellist = list(map(str, wheelRaw.split()))
+        # print(wheellist)
+
+readWheelTxtFile()
 
 # Prompt user for player names, store those names in the players dict
 # in the nested dictionaries with the "name" key    
@@ -62,51 +68,72 @@ def getPlayerInfo():
     players[2]["name"] = input("Enter player 3's name: ")
     # print(players)
 
-getPlayerInfo()
-
-# def gameSetup():
-#     # Read in File dictionary
-#     # Read in Turn Text Files
-#     global turntext
-#     global dictionary
+def gameSetup():
+    # Read in File dictionary
+    # Read in Turn Text Files
+    global turntext
+    global dictionary
         
-#     readDictionaryFile()
+    readDictionaryFile()
 #     readTurnTxtFile()
 #     readWheelTxtFile()
-#     getPlayerInfo()
+    getPlayerInfo()
 #     readRoundStatusTxtFile()
-#     readFinalRoundTxtFile() 
+#     readFinalRoundTxtFile()
+    wofRoundSetup() # For testing
+ 
     
-# def getWord():
-#     global dictionary
-#     #choose random word from dictionary
-#     #make a list of the word with underscores instead of letters.
-#     return roundWord,roundUnderscoreWord
+# Sets the puzzle word for the round, make a blank board to fill in
+# as correct guesses are made
+def getWord():
+    global dictionary
+    roundWord = random.choice(dictionary)
+    roundUnderscoreWord = []
+    # print(roundWord)
+    for letter in list(roundWord):
+        roundUnderscoreWord.append('_')
+    # print(blankWord)
+    return roundWord, roundUnderscoreWord
+    
 
-# def wofRoundSetup():
-#     global players
-#     global roundWord
-#     global blankWord
-#     # Set round total for each player = 0
-#     # Return the starting player number (random)
-#     # Use getWord function to retrieve the word and the underscore word (blankWord)
+def wofRoundSetup():
+    global players
+    global roundWord
+    global blankWord
+    word_and_board = getWord()
+    roundWord = word_and_board[0]
+    blankWord = word_and_board[1]
+    print(roundWord) # Remember to remove this before deploying the game!
+    print(blankWord)
+    playerNumberList = list(players.keys())
+    print(playerNumberList)
+    initPlayer = random.choice(playerNumberList)
+    print(initPlayer)
+    players[0]["roundtotal"] = 0
+    players[1]["roundtotal"] = 0
+    players[2]["roundtotal"] = 0
 
-#     return initPlayer
+    # Set round total for each player = 0
+    # Return the starting player number (random)
+    # Use getWord function to retrieve the word and the underscore word (blankWord)
 
+    return initPlayer
 
-# def spinWheel(playerNum):
-#     global wheellist
-#     global players
-#     global vowels
+def spinWheel(playerNum):
+    global wheellist
+    global players
+    global vowels
+    letter_value = random(wheellist)
+    print("letter value is " + letter_value)
 
-#     # Get random value for wheellist
-#     # Check for bankrupcy, and take action.
-#     # Check for loose turn
-#     # Get amount from wheel if not loose turn or bankruptcy
-#     # Ask user for letter guess
-#     # Use guessletter function to see if guess is in word, and return count
-#     # Change player round total if they guess right.     
-#     return stillinTurn
+    # Get random value for wheellist
+    # Check for bankrupcy, and take action.
+    # Check for loose turn
+    # Get amount from wheel if not loose turn or bankruptcy
+    # Ask user for letter guess
+    # Use guessletter function to see if guess is in word, and return count
+    # Change player round total if they guess right.     
+    # return stillinTurn
 
 
 # def guessletter(letter, playerNum): 
@@ -145,35 +172,35 @@ getPlayerInfo()
 #     return False
     
     
-# def wofTurn(playerNum):  
-#     global roundWord
-#     global blankWord
-#     global turntext
-#     global players
+def wofTurn(playerNum):  
+    global roundWord
+    global blankWord
+    global turntext
+    global players
 
-#     # take in a player number. 
-#     # use the string.format method to output your status for the round
-#     # and Ask to (s)pin the wheel, (b)uy vowel, or G(uess) the word using
-#     # Keep doing all turn activity for a player until they guess wrong
-#     # Do all turn related activity including update roundtotal 
+    # take in a player number. 
+    # use the string.format method to output your status for the round
+    # and Ask to (s)pin the wheel, (b)uy vowel, or G(uess) the word using
+    # Keep doing all turn activity for a player until they guess wrong
+    # Do all turn related activity including update roundtotal 
     
-#     stillinTurn = True
-#     while stillinTurn:
+    stillinTurn = True
+    while stillinTurn:
         
-#         # use the string.format method to output your status for the round
-#         # Get user input S for spin, B for buy a vowel, G for guess the word
+        # use the string.format method to output your status for the round
+        # Get user input S for spin, B for buy a vowel, G for guess the word
                 
-#         if(choice.strip().upper() == "S"):
-#             stillinTurn = spinWheel(playerNum)
-#         elif(choice.strip().upper() == "B"):
-#             stillinTurn = buyVowel(playerNum)
-#         elif(choice.upper() == "G"):
-#             stillinTurn = guessWord(playerNum)
-#         else:
-#             print("Not a correct option")        
+        if(choice.strip().upper() == "S"):
+            stillinTurn = spinWheel(playerNum)
+        elif(choice.strip().upper() == "B"):
+            stillinTurn = buyVowel(playerNum)
+        elif(choice.upper() == "G"):
+            stillinTurn = guessWord(playerNum)
+        else:
+            print("Not a correct option")        
     
-#     # Check to see if the word is solved, and return false if it is,
-#     # Or otherwise break the while loop of the turn.     
+    # Check to see if the word is solved, and return false if it is,
+    # Or otherwise break the while loop of the turn.     
 
 
 # def wofRound():
@@ -208,16 +235,16 @@ getPlayerInfo()
 #     # If they do, add finalprize and gametotal and print out that the player won 
 
 
-# def main():
-#     gameSetup()    
+def main():
+    gameSetup()    
 
-#     for i in range(0,maxrounds):
-#         if i in [0,1]:
-#             wofRound()
-#         else:
-#             wofFinalRound()
+    # for i in range(0,maxrounds):
+    #     if i in [0,1]:
+    #         wofRound()
+    #     else:
+    #         wofFinalRound()
 
-# if __name__ == "__main__":
-#     main()
+if __name__ == "__main__":
+    main()
     
     

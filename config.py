@@ -1,11 +1,11 @@
 # Dictionary file location, change if needed.
-dictionaryloc = 'data/dictionary.txt'
+dictionaryloc = 'dictionary.txt'
 
 # Turn text file location, change if needed.
-turntextloc = 'data/turntext.txt'
+turntextloc = 'turntext.txt'
 
 # Wheel contents for file location, change if needed.
-wheeltextloc = 'data/wheeldata.txt'
+wheeltextloc = 'wheeldata.txt'
 
 # End of Round Status status file, change if needed.
 roundstatusloc = 'data/roundstatus.txt'
