@@ -46,7 +46,7 @@ def readTurnTxtFile(playerNum):
     with open(turntextloc, "r") as file:
         turntext = file.read()
     # print(turntext % (players[playerNum]["name"]))
-    turnaction = input(turntext % (players[playerNum]["name"]))
+    turnaction = input("\n" + turntext % (players[playerNum]["name"]))
     return turnaction   
     #read in turn intial turn status "message" from file
 
@@ -109,7 +109,7 @@ def wofRoundSetup():
     roundWord = word_and_board[0]
     blankWord = word_and_board[1]
     print(roundWord) # Remember to remove this before deploying the game!
-    print("Let's take a look at the board...")
+    print("\nLet's take a look at the board...")
     print(blankWord)
     playerNumberList = list(players.keys())
     # print(playerNumberList) # uncomment this line to check the list of player numbers
@@ -125,7 +125,11 @@ def spinWheel(playerNum):
     global wheellist
     global players
     global vowels
-    letter_value = random(wheellist)
+    letter_value = random.choice(wheellist)
+    if letter_value == "BANKRUPT":
+        print("Sorry! You landed on 'BANKRUPT'")
+    elif letter_value == LoseTurn:
+        print("Sorry! You landed on 'Lose a Turn'")
     print("letter value is " + letter_value)
     print("UNDER CONSTRUCTION!")
 
@@ -196,8 +200,13 @@ def guessWord(playerNum):
     global players
     global blankWord
     global roundWord
-    print("UNDER CONSTRUCTION!")
-    
+
+    wordguess = input("\nType your word guess and press 'Enter': ")  
+    if wordguess == roundWord:
+        blankWord = list(wordguess)
+    else:
+        print("\nSorry. That guess was incorrect.")  
+
     # Take in player number
     # Ask for input of the word and check if it is the same as wordguess
     # Fill in blankList with all letters, instead of underscores if correct 
