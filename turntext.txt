@@ -1,2 +1,1 @@
-Add your text here and use string.format or string.format_map
-with {variables} to template strings
+%s. It's your turn! Would you like to (s)pin, (b)uy a vowell, or (g)uess the word?: 

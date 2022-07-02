@@ -8,7 +8,7 @@ turntextloc = 'turntext.txt'
 wheeltextloc = 'wheeldata.txt'
 
 # End of Round Status status file, change if needed.
-roundstatusloc = 'data/roundstatus.txt'
+roundstatusloc = 'roundstatus.txt'
 
 # number of rounds in a game
 maxrounds = 3
@@ -20,4 +20,4 @@ vowelcost = 250
 finalprize = "$1.00"
 
 # final round, change if needed.
-finalRoundTextLoc = 'data/finalround.txt'
+finalRoundTextLoc = 'finalround.txt'
