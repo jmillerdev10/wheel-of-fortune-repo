@@ -128,11 +128,28 @@ def spinWheel(playerNum):
     letter_value = random.choice(wheellist)
     if letter_value == "BANKRUPT":
         print("Sorry! You landed on 'BANKRUPT'")
-    elif letter_value == LoseTurn:
+        # Make sure that the round bank gets emptied
+        stillinTurn = False
+    elif letter_value == "LoseTurn":
         print("Sorry! You landed on 'Lose a Turn'")
-    print("letter value is " + letter_value)
-    print("UNDER CONSTRUCTION!")
+        stillinTurn = False
+    else:
+        letter = input("\nYou landed on $%s. Pick a letter: " % letter_value)
+    
+    if letter not in guessedletters:
+        guessedletters.append(letter)
+        count = guessletter(letter, playerNum)
+        if count[0]:
+            stillinTurn = True
+        else: 
+            stillinTurn = False
+    else:
+        print("Oops! That letter has already been guessed.")
+        stillinTurn = False  
 
+    # if count > 0:
+    #     print("This is where you will come up with the players total for the turn")      
+    return stillinTurn
     # Get random value for wheellist
     # Check for bankrupcy, and take action.
     # Check for loose turn
@@ -140,7 +157,7 @@ def spinWheel(playerNum):
     # Ask user for letter guess
     # Use guessletter function to see if guess is in word, and return count
     # Change player round total if they guess right.     
-    # return stillinTurn
+    
 
 
 def guessletter(letter, playerNum): 
