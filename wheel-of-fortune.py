@@ -55,9 +55,12 @@ def readTurnTxtFile(playerNum):
 #     global finalroundtext   
 #     #read in turn intial turn status "message" from file
 
-# def readRoundStatusTxtFile():
-#     global roundstatus
-#     # read the round status  the Config roundstatusloc file location 
+def readRoundStatusTxtFile():
+    global roundstatus
+    with open(roundstatusloc, "r") as file:
+        roundstatus = file.read()
+        print(roundstatus % (players[0]["name"], players[0]["roundtotal"], players[1]["name"], players[1]["roundtotal"], players[2]["name"], players[2]["roundtotal"]))
+    # read the round status  the Config roundstatusloc file location 
 
 # Open the wheeldata file and read it into the application
 def readWheelTxtFile():
@@ -86,7 +89,7 @@ def gameSetup():
 #     readTurnTxtFile()
     readWheelTxtFile()
     getPlayerInfo()
-#     readRoundStatusTxtFile()
+    readRoundStatusTxtFile()
 #     readFinalRoundTxtFile() 
     
 # Sets the puzzle word for the round, make a blank board to fill in
@@ -109,7 +112,7 @@ def wofRoundSetup():
     roundWord = word_and_board[0]
     blankWord = word_and_board[1]
     print(roundWord) # Remember to remove this before deploying the game!
-    print("\nLet's take a look at the board...")
+    print("\nLet's take a look at the puzzle...")
     print(blankWord)
     playerNumberList = list(players.keys())
     # print(playerNumberList) # uncomment this line to check the list of player numbers
@@ -125,9 +128,11 @@ def spinWheel(playerNum):
     global wheellist
     global players
     global vowels
+    global roundstatus
     letter_value = random.choice(wheellist)
     if letter_value == "BANKRUPT":
         print("Sorry! You landed on 'BANKRUPT'")
+        players[playerNum]["roundtotal"] = 0
         # Make sure that the round bank gets emptied
         stillinTurn = False
     elif letter_value == "LoseTurn":
@@ -136,19 +141,25 @@ def spinWheel(playerNum):
     else:
         letter = input("\nYou landed on $%s. Pick a letter: " % letter_value)
     
-    if letter not in guessedletters:
-        guessedletters.append(letter)
-        count = guessletter(letter, playerNum)
-        if count[0]:
-            stillinTurn = True
-        else: 
-            stillinTurn = False
-    else:
-        print("Oops! That letter has already been guessed.")
-        stillinTurn = False  
+        if letter not in guessedletters:
+            guessedletters.append(letter)
+            count = guessletter(letter, playerNum)
+            if count[0]:
+                stillinTurn = True
+            else: 
+                stillinTurn = False
+        else:
+            print("Oops! That letter has already been guessed.")
+            stillinTurn = False  
 
-    # if count > 0:
-    #     print("This is where you will come up with the players total for the turn")      
+    if count[1] > 0:
+        reward = count[1] * int(letter_value)
+        print(reward)
+        players[playerNum]["roundtotal"] = players[playerNum]["roundtotal"] + reward
+        print(players[playerNum])
+        print("Reward for this turn was $%s" % (reward))
+        readRoundStatusTxtFile()
+        # print(roundstatus % (players[0]["name"], players[0]["roundtotal"], players[1]["name"], players[1]["roundtotal"], players[2]["name"], players[2]["roundtotal"]))
     return stillinTurn
     # Get random value for wheellist
     # Check for bankrupcy, and take action.
@@ -174,9 +185,13 @@ def guessletter(letter, playerNum):
                 count += 1
             i = i + 1
         goodGuess = True
-        print("There are %i %s's" % (count, letter))
+        if count > 1:
+            print("\nThere are %i %s's" % (count, letter))
+
+        else: 
+            print("\nThere is %i %s" % (count, letter))
     else:
-        print("Sorry. %c is not in the puzzle" % (letter))
+        print("\nSorry. %c is not in the puzzle" % (letter))
         goodGuess = False
     print(blankWord)
 
@@ -238,7 +253,8 @@ def wofTurn(playerNum):
     global turntext
     global players
 
-    # print("You chose " + turnaction) # uncomment to verify that the action the player chooses is returning correctly
+    readRoundStatusTxtFile()
+    # print(roundstatusloc % (players[0], players[0]["roundtotal"], players[1], players[1]["roundtotal"], players[2], players[2]["roundtotal"]))
 
     # take in a player number. 
     # use the string.format method to output your status for the round
@@ -255,7 +271,13 @@ def wofTurn(playerNum):
             if(choice.strip().upper() == "S"):
                 stillinTurn = spinWheel(playerNum)
             elif(choice.strip().upper() == "B"):
-                stillinTurn = buyVowel(playerNum)
+                if players[playerNum]["roundtotal"] < 250:
+                    print("Sorry, you do not have enough money to buy a vowel. You must spin or solve the puzzle")
+                    wofTurn(playerNum)
+                    # choice = readTurnTxtFile(playerNum)
+                else:
+                    players[playerNum]["roundtotal"] = players[playerNum]["roundtotal"] - 250
+                    stillinTurn = buyVowel(playerNum)
             elif(choice.upper() == "G"):
                 stillinTurn = guessWord(playerNum)
             else:
@@ -264,6 +286,14 @@ def wofTurn(playerNum):
         if blankWord == list(roundWord):
             print("We have a winner. The word was %s" % (roundWord))
             solved = True
+            players[0]["gametotal"] = players[0]["roundtotal"]
+            players[1]["gametotal"] = players[1]["roundtotal"]
+            players[2]["gametotal"] = players[2]["roundtotal"]
+
+            print(players)
+
+
+            readRoundStatusTxtFile()
         else:
             if playerNum == 0 or playerNum == 1:
                 playerNum = playerNum + 1
