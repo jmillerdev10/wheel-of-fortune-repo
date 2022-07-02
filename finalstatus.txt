@@ -1,4 +1,4 @@
 
-Current Round Scoreboard
+Final Scoreboard
 ============================
 %s: $%s | %s: $%s | %s: $%s

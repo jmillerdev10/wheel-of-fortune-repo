@@ -7,6 +7,8 @@ from config import wheeltextloc
 from config import maxrounds
 from config import vowelcost
 from config import roundstatusloc
+from config import finalstatusloc
+from config import winnerstatusloc
 from config import finalprize
 from config import finalRoundTextLoc
 
@@ -60,7 +62,18 @@ def readRoundStatusTxtFile():
     with open(roundstatusloc, "r") as file:
         roundstatus = file.read()
         print(roundstatus % (players[0]["name"], players[0]["roundtotal"], players[1]["name"], players[1]["roundtotal"], players[2]["name"], players[2]["roundtotal"]))
-    # read the round status  the Config roundstatusloc file location 
+
+def readFinalStatusTxtFile():
+    global finalstatus
+    with open(roundstatusloc, "r") as file:
+        finalstatus = file.read()
+        print(finalstatus % (players[0]["name"], players[0]["gametotal"], players[1]["name"], players[1]["gametotal"], players[2]["name"], players[2]["gametotal"]))
+
+def readWinnerStatusTxtFile(playerNum):
+    global winnerstatus
+    with open(roundstatusloc, "r") as file:
+        winnerstatus = file.read()
+        print(winnerstatus % (players[playerNum]["name"], players[playerNum]["roundtotal"]))
 
 # Open the wheeldata file and read it into the application
 def readWheelTxtFile():
@@ -108,6 +121,10 @@ def wofRoundSetup():
     global players
     global roundWord
     global blankWord
+    global guessedletters
+    global guessedvowels
+    guessedletters = []
+    guessedvowels = []
     word_and_board = getWord()
     roundWord = word_and_board[0]
     blankWord = word_and_board[1]
@@ -115,7 +132,6 @@ def wofRoundSetup():
     print("\nLet's take a look at the puzzle...")
     print(blankWord)
     playerNumberList = list(players.keys())
-    # print(playerNumberList) # uncomment this line to check the list of player numbers
     initPlayer = random.choice(playerNumberList)
     # print("initPlayer is: " + str(initPlayer)) # uncomment this to make sure initPlayer was properly assigned
     players[0]["roundtotal"] = 0
@@ -133,10 +149,11 @@ def spinWheel(playerNum):
     if letter_value == "BANKRUPT":
         print("Sorry! You landed on 'BANKRUPT'")
         players[playerNum]["roundtotal"] = 0
-        # Make sure that the round bank gets emptied
+        count = [None, 0]
         stillinTurn = False
     elif letter_value == "LoseTurn":
         print("Sorry! You landed on 'Lose a Turn'")
+        count = [None, 0]
         stillinTurn = False
     else:
         letter = input("\nYou landed on $%s. Pick a letter: " % letter_value)
@@ -154,9 +171,9 @@ def spinWheel(playerNum):
 
     if count[1] > 0:
         reward = count[1] * int(letter_value)
-        print(reward)
+        # print(reward)
         players[playerNum]["roundtotal"] = players[playerNum]["roundtotal"] + reward
-        print(players[playerNum])
+        # print(players[playerNum])
         print("Reward for this turn was $%s" % (reward))
         readRoundStatusTxtFile()
         # print(roundstatus % (players[0]["name"], players[0]["roundtotal"], players[1]["name"], players[1]["roundtotal"], players[2]["name"], players[2]["roundtotal"]))
@@ -218,7 +235,9 @@ def buyVowel(playerNum):
             goodGuess = False
     else:
         print("Oops! %c is not a vowel. Try again" % (vowelguess))
-        buyVowel(playerNum)    
+        buyVowel(playerNum)
+        
+    readRoundStatusTxtFile()
         
     # Take in a player number
     # Ensure player has 250 for buying a vowelcost
@@ -271,12 +290,12 @@ def wofTurn(playerNum):
             if(choice.strip().upper() == "S"):
                 stillinTurn = spinWheel(playerNum)
             elif(choice.strip().upper() == "B"):
-                if players[playerNum]["roundtotal"] < 250:
+                if players[playerNum]["roundtotal"] < vowelcost:
                     print("Sorry, you do not have enough money to buy a vowel. You must spin or solve the puzzle")
                     wofTurn(playerNum)
                     # choice = readTurnTxtFile(playerNum)
                 else:
-                    players[playerNum]["roundtotal"] = players[playerNum]["roundtotal"] - 250
+                    players[playerNum]["roundtotal"] = players[playerNum]["roundtotal"] - vowelcost
                     stillinTurn = buyVowel(playerNum)
             elif(choice.upper() == "G"):
                 stillinTurn = guessWord(playerNum)
@@ -286,9 +305,9 @@ def wofTurn(playerNum):
         if blankWord == list(roundWord):
             print("We have a winner. The word was %s" % (roundWord))
             solved = True
-            players[0]["gametotal"] = players[0]["roundtotal"]
-            players[1]["gametotal"] = players[1]["roundtotal"]
-            players[2]["gametotal"] = players[2]["roundtotal"]
+            players[playerNum]["gametotal"] = players[playerNum]["gametotal"] + players[playerNum]["roundtotal"]
+            # players[1]["gametotal"] = players[1]["gametotal"] + players[1]["roundtotal"]
+            # players[2]["gametotal"] = players[2]["gametotal"] + players[2]["roundtotal"]
 
             print(players)
 
@@ -350,6 +369,7 @@ def main():
             print("Time to play Round %s!" % (i+1))
             wofRound()
         else:
+            print(players)
             print("Final Round Under Construction!")
     #         wofFinalRound()
 

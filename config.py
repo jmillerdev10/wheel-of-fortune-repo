@@ -10,6 +10,12 @@ wheeltextloc = 'wheeldata.txt'
 # End of Round Status status file, change if needed.
 roundstatusloc = 'roundstatus.txt'
 
+# Status after 2 rounds status file, change if needed.
+finalstatusloc = 'finalstatus.txt'
+
+# End of Game Status status file, change if needed.
+winnerstatusloc = 'winnerstatus.txt'
+
 # number of rounds in a game
 maxrounds = 3
 
