@@ -29,6 +29,7 @@ blankWord = []
 vowels = {"a", "e", "i", "o", "u"}
 roundstatus = ""
 finalroundtext = ""
+solved = False
 
 guessedletters = []
 guessedvowels = []
@@ -65,13 +66,13 @@ def readRoundStatusTxtFile():
 
 def readFinalStatusTxtFile():
     global finalstatus
-    with open(roundstatusloc, "r") as file:
+    with open(finalstatusloc, "r") as file:
         finalstatus = file.read()
         print(finalstatus % (players[0]["name"], players[0]["gametotal"], players[1]["name"], players[1]["gametotal"], players[2]["name"], players[2]["gametotal"]))
 
 def readWinnerStatusTxtFile(playerNum):
     global winnerstatus
-    with open(roundstatusloc, "r") as file:
+    with open(winnerstatusloc, "r") as file:
         winnerstatus = file.read()
         print(winnerstatus % (players[playerNum]["name"], players[playerNum]["roundtotal"]))
 
@@ -271,6 +272,7 @@ def wofTurn(playerNum):
     global blankWord
     global turntext
     global players
+    global solved
 
     readRoundStatusTxtFile()
     # print(roundstatusloc % (players[0], players[0]["roundtotal"], players[1], players[1]["roundtotal"], players[2], players[2]["roundtotal"]))
@@ -309,10 +311,11 @@ def wofTurn(playerNum):
             # players[1]["gametotal"] = players[1]["gametotal"] + players[1]["roundtotal"]
             # players[2]["gametotal"] = players[2]["gametotal"] + players[2]["roundtotal"]
 
-            print(players)
+            # print(players)
 
 
-            readRoundStatusTxtFile()
+            readFinalStatusTxtFile()
+            
         else:
             if playerNum == 0 or playerNum == 1:
                 playerNum = playerNum + 1
@@ -369,8 +372,16 @@ def main():
             print("Time to play Round %s!" % (i+1))
             wofRound()
         else:
-            print(players)
-            print("Final Round Under Construction!")
+            readFinalStatusTxtFile()
+            finalscores = []
+            templeader = ['', 0]
+            for player in players:
+                finalscores.append([players[player]["name"], players[player]["gametotal"]])
+            for score in finalscores:
+                if score[1] > templeader[1]:
+                    templeader = score
+            print("\n" + templeader[0] + " will be moving on to the Final Round!")
+            print("\nFinal Round Under Construction!")
     #         wofFinalRound()
 
 if __name__ == "__main__":

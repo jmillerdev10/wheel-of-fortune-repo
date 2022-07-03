@@ -1,1 +1,1 @@
-Ok %s. It's your turn! Would you like to (s)pin, (b)uy a vowell, or (g)uess the word?: 
+Ok %s. It's your turn! Would you like to (s)pin, (b)uy a vowel, or (g)uess the word?: 
