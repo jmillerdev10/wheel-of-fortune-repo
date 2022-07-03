@@ -41,22 +41,21 @@ def readDictionaryFile():
     with open(dictionaryloc, "r") as file:
         dictionaryRaw = file.read()
         dictionary = list(map(str, dictionaryRaw.split()))
-        # getWord() # This needs to be called from within wofRoundSetup(). Delete this line once that is in place
-        # print(dictionary)
         
 def readTurnTxtFile(playerNum):
     global turntext
     with open(turntextloc, "r") as file:
         turntext = file.read()
-    # print(turntext % (players[playerNum]["name"]))
     turnaction = input("\n" + turntext % (players[playerNum]["name"]))
     return turnaction   
-    #read in turn intial turn status "message" from file
-
         
-# def readFinalRoundTxtFile():
-#     global finalroundtext   
-#     #read in turn intial turn status "message" from file
+def readFinalRoundTxtFile():
+    global finalroundtext
+    with open(finalRoundTextLoc, "r") as file:
+        finalroundtext = file.read()
+        print(finalroundtext % (players[0]["name"], finalprize, int(players[0]["gametotal"])))
+   
+    #read in turn intial turn status "message" from file
 
 def readRoundStatusTxtFile():
     global roundstatus
@@ -82,7 +81,6 @@ def readWheelTxtFile():
     with open(wheeltextloc, "r") as file:
         wheelRaw = file.read()
         wheellist = list(map(str, wheelRaw.split()))
-        # print(wheellist)
 
 # Prompt user for player names, store those names in the players dict
 # in the nested dictionaries with the "name" key    
@@ -91,11 +89,8 @@ def getPlayerInfo():
     players[0]["name"] = input("Enter player 1's name: ")
     players[1]["name"] = input("Enter player 2's name: ")
     players[2]["name"] = input("Enter player 3's name: ")
-    # print(players)
 
 def gameSetup():
-    # Read in File dictionary
-    # Read in Turn Text Files
     global turntext
     global dictionary
         
@@ -104,7 +99,7 @@ def gameSetup():
     readWheelTxtFile()
     getPlayerInfo()
     readRoundStatusTxtFile()
-#     readFinalRoundTxtFile() 
+    readFinalRoundTxtFile() 
     
 # Sets the puzzle word for the round, make a blank board to fill in
 # as correct guesses are made
@@ -112,7 +107,6 @@ def getWord():
     global dictionary
     roundWord = random.choice(dictionary)
     roundUnderscoreWord = []
-    # print(roundWord)
     for letter in list(roundWord):
         roundUnderscoreWord.append('_')
     return roundWord, roundUnderscoreWord
@@ -134,7 +128,6 @@ def wofRoundSetup():
     print(blankWord)
     playerNumberList = list(players.keys())
     initPlayer = random.choice(playerNumberList)
-    # print("initPlayer is: " + str(initPlayer)) # uncomment this to make sure initPlayer was properly assigned
     players[0]["roundtotal"] = 0
     players[1]["roundtotal"] = 0
     players[2]["roundtotal"] = 0
@@ -171,23 +164,17 @@ def spinWheel(playerNum):
             stillinTurn = False  
 
     if count[1] > 0:
-        reward = count[1] * int(letter_value)
-        # print(reward)
-        players[playerNum]["roundtotal"] = players[playerNum]["roundtotal"] + reward
-        # print(players[playerNum])
-        print("Reward for this turn was $%s" % (reward))
+        if letter in vowels:
+            if letter not in guessedvowels:
+                guessedvowels.append(letter)
+            reward = 0
+            print("%c is in the puzzle, but you get no money for vowels when you spin" % (letter))
+        else:
+            reward = count[1] * int(letter_value)
+            players[playerNum]["roundtotal"] = players[playerNum]["roundtotal"] + reward
+            print("You earned $%s for this turn" % (reward))
         readRoundStatusTxtFile()
-        # print(roundstatus % (players[0]["name"], players[0]["roundtotal"], players[1]["name"], players[1]["roundtotal"], players[2]["name"], players[2]["roundtotal"]))
     return stillinTurn
-    # Get random value for wheellist
-    # Check for bankrupcy, and take action.
-    # Check for loose turn
-    # Get amount from wheel if not loose turn or bankruptcy
-    # Ask user for letter guess
-    # Use guessletter function to see if guess is in word, and return count
-    # Change player round total if they guess right.     
-    
-
 
 def guessletter(letter, playerNum): 
     global players
@@ -345,23 +332,25 @@ def wofRound():
     
     # Print roundstatus with string.format, tell people the state of the round as you are leaving a round.
 
-# def wofFinalRound():
-#     global roundWord
-#     global blankWord
-#     global finalroundtext
-#     winplayer = 0
-#     amount = 0
+def wofFinalRound():
+    global roundWord
+    global blankWord
+    global finalroundtext
+    winplayer = 0
+    amount = 0
+
+    are_you_ready = input(readFinalRoundTxtFile())
     
-#     # Find highest gametotal player.  They are playing.
-#     # Print out instructions for that player and who the player is.
-#     # Use the getWord function to reset the roundWord and the blankWord ( word with the underscores)
-#     # Use the guessletter function to check for {'R','S','T','L','N','E'}
-#     # Print out the current blankWord with whats in it after applying {'R','S','T','L','N','E'}
-#     # Gather 3 consonats and 1 vowel and use the guessletter function to see if they are in the word
-#     # Print out the current blankWord again
-#     # Remember guessletter should fill in the letters with the positions in blankWord
-#     # Get user to guess word
-#     # If they do, add finalprize and gametotal and print out that the player won 
+    # Find highest gametotal player.  They are playing.
+    # Print out instructions for that player and who the player is.
+    # Use the getWord function to reset the roundWord and the blankWord ( word with the underscores)
+    # Use the guessletter function to check for {'R','S','T','L','N','E'}
+    # Print out the current blankWord with whats in it after applying {'R','S','T','L','N','E'}
+    # Gather 3 consonats and 1 vowel and use the guessletter function to see if they are in the word
+    # Print out the current blankWord again
+    # Remember guessletter should fill in the letters with the positions in blankWord
+    # Get user to guess word
+    # If they do, add finalprize and gametotal and print out that the player won 
 
 
 def main():
@@ -382,7 +371,7 @@ def main():
                     templeader = score
             print("\n" + templeader[0] + " will be moving on to the Final Round!")
             print("\nFinal Round Under Construction!")
-    #         wofFinalRound()
+            wofFinalRound()
 
 if __name__ == "__main__":
     main()

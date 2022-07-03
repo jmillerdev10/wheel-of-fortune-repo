@@ -1,2 +1,13 @@
-Add your text here and use string.format or string.format_map
-with {variables} to template strings
+
+Congratulations on making it to the Final Round, %s! 
+
+For the final round, we will put a word up on the board and reveal
+the letters, R S T L and E, should any of these letters be in
+the final puzzle. You will then have an opportunity to guess
+the word.
+
+If you are correct, you will take home the Grand Prize of $%s,
+in addition to the $%s in winnings that you won during the 
+earlier rounds. 
+
+Are you ready to go? 
