@@ -101,7 +101,7 @@ def gameSetup():
 #     readTurnTxtFile()
     readWheelTxtFile()
     getPlayerInfo()
-    readRoundStatusTxtFile()
+#    readRoundStatusTxtFile()
 #    readFinalRoundTxtFile() 
     
 # Sets the puzzle word for the round, make a blank board to fill in
