@@ -22,6 +22,9 @@ maxrounds = 3
 # Vowel cost
 vowelcost = 250
 
+# Round winner minimum
+roundminimum = 250
+
 # final prize, you fill this in
 finalprize = 1.00
 
