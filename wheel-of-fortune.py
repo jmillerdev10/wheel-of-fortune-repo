@@ -49,11 +49,12 @@ def readTurnTxtFile(playerNum):
     turnaction = input("\n" + turntext % (players[playerNum]["name"]))
     return turnaction   
         
-def readFinalRoundTxtFile():
+def readFinalRoundTxtFile(playerNum):
     global finalroundtext
     with open(finalRoundTextLoc, "r") as file:
         finalroundtext = file.read()
-        print(finalroundtext % (players[0]["name"], finalprize, int(players[0]["gametotal"])))
+        returntext = (finalroundtext % (players[playerNum]["name"], finalprize, int(players[playerNum]["gametotal"])))
+    return returntext
    
     #read in turn intial turn status "message" from file
 
@@ -67,13 +68,15 @@ def readFinalStatusTxtFile():
     global finalstatus
     with open(finalstatusloc, "r") as file:
         finalstatus = file.read()
-        print(finalstatus % (players[0]["name"], players[0]["gametotal"], players[1]["name"], players[1]["gametotal"], players[2]["name"], players[2]["gametotal"]))
+        finalstatustext = (finalstatus % (players[0]["name"], players[0]["gametotal"], players[1]["name"], players[1]["gametotal"], players[2]["name"], players[2]["gametotal"]))
+    return finalstatustext
 
 def readWinnerStatusTxtFile(playerNum):
     global winnerstatus
     with open(winnerstatusloc, "r") as file:
         winnerstatus = file.read()
-        print(winnerstatus % (players[playerNum]["name"], players[playerNum]["roundtotal"]))
+        winnerstatustext = (winnerstatus % (players[playerNum]["name"], players[playerNum]["gametotal"]))
+        return winnerstatustext
 
 # Open the wheeldata file and read it into the application
 def readWheelTxtFile():
@@ -99,7 +102,7 @@ def gameSetup():
     readWheelTxtFile()
     getPlayerInfo()
     readRoundStatusTxtFile()
-    readFinalRoundTxtFile() 
+#    readFinalRoundTxtFile() 
     
 # Sets the puzzle word for the round, make a blank board to fill in
 # as correct guesses are made
@@ -134,6 +137,12 @@ def wofRoundSetup():
 
     return initPlayer
 
+def spinvowelchecker(letter):
+    if letter in vowels:
+        print("Oops! Since you spun the wheel, you must choose a consonant, not a vowel.")
+        letter = input("Pick a consonant: ")
+        spinvowelchecker(letter) 
+
 def spinWheel(playerNum):
     global wheellist
     global players
@@ -152,28 +161,41 @@ def spinWheel(playerNum):
     else:
         letter = input("\nYou landed on $%s. Pick a letter: " % letter_value)
     
-        if letter not in guessedletters:
-            guessedletters.append(letter)
-            count = guessletter(letter, playerNum)
-            if count[0]:
-                stillinTurn = True
-            else: 
-                stillinTurn = False
-        else:
-            print("Oops! That letter has already been guessed.")
-            stillinTurn = False  
+    spinvowelchecker(letter)
+       
+    if letter not in guessedletters:
+        guessedletters.append(letter)
+        count = guessletter(letter, playerNum)
+        if count[0]:
+            stillinTurn = True
+        else: 
+            stillinTurn = False
+    else:
+        print("Oops! That letter has already been guessed.")
+        count = [None, 0]
+        stillinTurn = False  
 
-    if count[1] > 0:
-        if letter in vowels:
-            if letter not in guessedvowels:
-                guessedvowels.append(letter)
-            reward = 0
-            print("%c is in the puzzle, but you get no money for vowels when you spin" % (letter))
-        else:
-            reward = count[1] * int(letter_value)
-            players[playerNum]["roundtotal"] = players[playerNum]["roundtotal"] + reward
-            print("You earned $%s for this turn" % (reward))
-        readRoundStatusTxtFile()
+    reward = int(letter_value)
+    # reward = count[1] * int(letter_value) # comment the above line and uncomment this one to have multiple letter matches multiply the reward
+    players[playerNum]["roundtotal"] = players[playerNum]["roundtotal"] + reward
+    print("You earned $%s for this turn" % (reward))
+    readRoundStatusTxtFile()
+
+    # The following block makes it possible to guess vowels for no reward after a spin
+    # You would want to comment out lines 178-182, as well as line 164 if you 
+    # are going to use the following block... 
+    # if count[1] > 0:
+    #     if letter in vowels:
+    #         if letter not in guessedvowels:
+    #             guessedvowels.append(letter)
+    #         reward = 0
+    #         print("%c is in the puzzle, but you get no money for vowels when you spin" % (letter))
+    #     else:
+    #         reward = int(letter_value)
+    #         # reward = count[1] * int(letter_value) # comment the above line and uncomment this one to have multiple letter matches multiply the reward
+    #         players[playerNum]["roundtotal"] = players[playerNum]["roundtotal"] + reward
+    #         print("You earned $%s for this turn" % (reward))
+    #     readRoundStatusTxtFile()
     return stillinTurn
 
 def guessletter(letter, playerNum): 
@@ -207,7 +229,7 @@ def guessletter(letter, playerNum):
     # ensure letter is a consonate.
     
     return goodGuess, count
-
+    
 def buyVowel(playerNum):
     global players
     global vowels
@@ -332,15 +354,90 @@ def wofRound():
     
     # Print roundstatus with string.format, tell people the state of the round as you are leaving a round.
 
-def wofFinalRound():
+def finalguessletter(letter, playerNum): 
+    global players
+    global blankWord
+
+    i = 0
+    if letter in roundWord:
+        for character in roundWord:
+            if letter == character:
+                index = i
+                blankWord[index] = letter
+            i = i + 1
+
+    # parameters:  take in a letter guess and player number
+    # Change position of found letter in blankWord to the letter instead of underscore 
+    # return goodGuess= true if it was a correct guess
+    # return count of letters in word. 
+    # ensure letter is a consonate.
+
+def freebiechecker(finalfreebies, chosenfreebies, playerNum):
+    for freebie in chosenfreebies:
+        if freebie in finalfreebies:
+            print("\nOops! We already provided r, s, t, l, n, and e. Make sure you don't choose any of these...")
+            chosenfreebies = input("(type in the letters, separated by commas, then press Enter)" )
+            freebiechecker(finalfreebies, chosenfreebies, playerNum)
+        
+    vowelcount = 0
+    for freebie in chosenfreebies:
+        if freebie in vowels:
+            vowelcount = vowelcount + 1
+
+    if vowelcount < 1:
+        print("\nWait...you forgot to pick a vowel. Try again...")
+        chosenfreebies = input("(type in the letters, separated by commas, then press Enter)" )
+        freebiechecker(finalfreebies, chosenfreebies, playerNum)
+    elif vowelcount > 1:
+        print("\nWait...you picked too many vowels. Try again...")
+        chosenfreebies = input("(type in the letters, separated by commas, then press Enter)" )
+        freebiechecker(finalfreebies, chosenfreebies, playerNum)
+    else:
+            finalguessletter(freebie, playerNum)
+
+def wofFinalRound(playerNum):
     global roundWord
     global blankWord
     global finalroundtext
+    global players
     winplayer = 0
     amount = 0
 
-    are_you_ready = input(readFinalRoundTxtFile())
-    
+    finalfreebies = {"r", "s", "t", "l", "n", "e"}
+    chosenfreebies = []
+
+    ready_set = input(readFinalRoundTxtFile(playerNum))
+    if ready_set.strip() == 'go':
+        word_and_board = getWord()
+        roundWord = word_and_board[0]
+        blankWord = word_and_board[1]
+
+    for freebie in finalfreebies:
+        finalguessletter(freebie, playerNum)  
+
+    print("\n")
+    print(blankWord)
+    print("\nNow it's your turn to pick 3 additional consonants and a vowel:")
+    chosenfreebies = input("(type in the letters, separated by commas, then press Enter)" )      
+    freebiechecker(finalfreebies, chosenfreebies, playerNum)
+
+    print("\n")
+    print(blankWord)
+
+    finalguess = input("\nNow it's time to guess the word! Type your guess and press Enter: ")
+    if finalguess == roundWord:
+        players[playerNum]["gametotal"] = players[playerNum]["gametotal"] + finalprize
+        print("Congratulations, %s! You won the grand prize!")
+        print("Let's take a look at your final results:\n") 
+        resultstext = readWinnerStatusTxtFile(playerNum)
+        print(resultstext)
+    else:
+        print("\nWell, that was not correct, but you're still the big winner!")
+        print("\nLet's take a look at your final results:\n") 
+        resultstext = readWinnerStatusTxtFile(playerNum)
+        print(resultstext)
+
+
     # Find highest gametotal player.  They are playing.
     # Print out instructions for that player and who the player is.
     # Use the getWord function to reset the roundWord and the blankWord ( word with the underscores)
@@ -358,20 +455,22 @@ def main():
 
     for i in range(0,maxrounds):
         if i in [0,1]:
-            print("Time to play Round %s!" % (i+1))
+            print("\nTime to play Round %s!" % (i+1))
             wofRound()
         else:
-            readFinalStatusTxtFile()
+            finalstatustext = readFinalStatusTxtFile()
+            print(finalstatustext)
             finalscores = []
-            templeader = ['', 0]
+            templeader = [-1, '', 0]
             for player in players:
-                finalscores.append([players[player]["name"], players[player]["gametotal"]])
+                finalscores.append([player, players[player]["name"], players[player]["gametotal"]])
             for score in finalscores:
-                if score[1] > templeader[1]:
+                if score[2] > templeader[2]:
                     templeader = score
-            print("\n" + templeader[0] + " will be moving on to the Final Round!")
+
+            print("\n" + templeader[1] + " will be moving on to the Final Round!")
             print("\nFinal Round Under Construction!")
-            wofFinalRound()
+            wofFinalRound(templeader[0])
 
 if __name__ == "__main__":
     main()
